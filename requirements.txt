@@ -5,3 +5,5 @@ seaborn
 matplotlib
 fastapi
 uvicorn
+pyarrow
+fastparquet
