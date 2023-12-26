@@ -16,9 +16,15 @@ import sys
 
 ## Generar la carga de todos los csv usados para las funciones!
 # Funcion 1
-df_funcion_PlaytimeGenre = pd.read_csv('df_funciones/df_funcion_PlaytimeGenre.csv')
+parquet_ruta_fc1 = "df_funciones/df_funcion_PlayTimeGenre.parquet"
+df_funcion_PlaytimeGenre = pd.read_parquet(parquet_ruta_fc1)
+# df_funcion_PlaytimeGenre = pd.read_csv('df_funciones/df_funcion_PlaytimeGenre.csv')
+
 # Funcion 2
-df_funcion_UserForGenre = pd.read_csv('df_funciones/df_user_for_genre.csv')
+parquet_ruta_fc2 = "df_funciones/df_user_for_genre.parquet"
+df_funcion_UserForGenre = pd.read_parquet(parquet_ruta_fc2)
+#df_funcion_UserForGenre = pd.read_csv('df_funciones/df_user_for_genre.csv')
+
 # Funcion 3
 users_reviews_fc3 = pd.read_csv('df_funciones/users_reviews_fc3.csv')
 listado_juegos_sin_repetidos = pd.read_csv('df_funciones/listado_juegos_sin_repetidos.csv')
