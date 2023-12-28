@@ -1,37 +1,20 @@
 import pandas as pd
 import numpy as np
-import json
 from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
-from scipy.sparse import issparse
 from fastapi import FastAPI, HTTPException, Path
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
 from typing import List, Dict
-import os
-from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import TruncatedSVD
-import sys
 
 
-## Generar la carga de todos los csv usados para las funciones!
-# Funcion 1
-parquet_ruta_fc1 = "df_funciones/df_funcion_PlayTimeGenre.parquet"
-df_funcion_PlaytimeGenre = pd.read_parquet(parquet_ruta_fc1)
-# df_funcion_PlaytimeGenre = pd.read_csv('df_funciones/df_funcion_PlaytimeGenre.csv')
-
-# Funcion 2
-parquet_ruta_fc2 = "df_funciones/df_user_for_genre.parquet"
-df_funcion_UserForGenre = pd.read_parquet(parquet_ruta_fc2)
-#df_funcion_UserForGenre = pd.read_csv('df_funciones/df_user_for_genre.csv')
-
-# Funcion 3
-users_reviews_fc3 = pd.read_csv('df_funciones/users_reviews_fc3.csv')
-listado_juegos_sin_repetidos = pd.read_csv('df_funciones/listado_juegos_sin_repetidos.csv')
-# Funcion 4
-df_funcion_UsersWorstDeveloper = pd.read_csv('df_funciones/df_funcion_UsersWorstDeveloper.csv')
-# Funcion 5
-df_funcion_sentiment_analysis = pd.read_csv('df_funciones/df_funcion_sentiment_analysis.csv')
+# Rutas de los archivos
+parquet_ruta_fc1 = "df_funciones/df_funcion_PlaytimeGenre2_reducido.parquet"
+parquet_ruta_fc2 = "df_funciones/df_funcion_UserForGenre_reducido.parquet"
+parquet_ruta_fc3 = "df_funciones/users_reviews_fc3_reducido.parquet"
+parquet_ruta_fc3_2 = "df_funciones/listado_juegos_sin_repetidos.parquet"
+parquet_ruta_fc4 = "df_funciones/df_funcion_UsersWorstDeveloper_reducido.parquet"
+parquet_ruta_fc5 = "df_funciones/df_funcion_sentiment_analysis_reducido.parquet"
+parquet_ruta_fc6 = "df_funciones/df_recomed_juego_reducido.parquet"
 
 
 app = FastAPI()
@@ -47,6 +30,31 @@ async def root():
 
 @app.get('/PlayTimeGenre/{genero}')
 def PlayTimeGenre(genero: str):
+
+    """
+    Funcion: Tiempo jugado por Genero
+    Endpoint para obtener el tiempo jugado por genero.
+    Devuelve, el genero solicitado, el año con más horas jugadas y la cantidad de horas
+
+    Parámetros:
+    - genero (str): Nombre del genero que se desea saber el año con mayor hs jugadas.
+
+    Respuestas:
+    - 200 OK: Retorna el genero cargado, el año con más horas jugadas y la cantidad de hs.
+    - 404 Not Found: Si no se encuentra el genero especificado.
+    - 500 Internal Server Error: En caso de cualquier otro error, proporciona detalles de la excepción.
+
+    Ejemplo de Uso:
+    - /PlayTimeGenre/Action
+
+    Ejemplo de Respuesta Exitosa:
+    Género: Action
+    Año con más horas jugadas para el género: 2014.
+    Horas totales jugadas: 11123546
+    
+    """
+    # Abrir el data frame necesario
+    df_funcion_PlaytimeGenre = pd.read_parquet(parquet_ruta_fc1)
 
     # Filtrar el DataFrame por el género especificado
     df_genero = df_funcion_PlaytimeGenre[df_funcion_PlaytimeGenre['genres'] == genero]
@@ -72,6 +80,31 @@ Horas totales jugadas: {horas_totales}
 @app.get('/UserForGenre/{genero}')
 def UserForGenre(genero: str):
     
+    """
+    Funcion: Usuario por genero
+    Endpoint para obtener el usuario que mas juego a ese genero.
+    Devuelve, el genero solicitado, el usuario con más horas jugadas y la cantidad de horas.
+
+    Parámetros:
+    - genero (str): Nombre del genero que se desea saber el usuario con mas hs jugadas.
+
+    Respuestas:
+    - 200 OK: Retorna el genero cargado, el año con más horas jugadas y la cantidad de hs.
+    - 404 Not Found: Si no se encuentra el genero especificado.
+    - 500 Internal Server Error: En caso de cualquier otro error, proporciona detalles de la excepción.
+
+    Ejemplo de Uso:
+    - /UserForGenre/Action
+
+    Ejemplo de Respuesta Exitosa:
+    Género: Action
+    Año con más horas jugadas para el género: 2014.
+    Horas totales jugadas: 11123546
+    """
+
+    # Abrir el data frame necesario
+    df_funcion_UserForGenre = pd.read_parquet(parquet_ruta_fc2)
+
     # Filtrar el DataFrame por el género especificado
     df_genero = df_funcion_UserForGenre[df_funcion_UserForGenre['genres'] == genero]
 
@@ -94,6 +127,33 @@ Horas totales jugadas: {horas_totales}
 
 @app.get('/UsersRecommend/{anio}')
 def UsersRecommend(año: int):
+
+    """
+    Funcion: Recomendacion de usuarios
+    Endpoint para obtener la recomendacion de usuario en un año solicitado
+    Devuelve, los mejores 3 juegos recomendados por los usuarios en el año pedido.
+
+    Parámetros:
+    - año (int): Año que se quiere conocer los mejores 3 juegos recomendados
+
+    Respuestas:
+    - 200 OK: Retorna los 3 juegos más recomendados
+    - 404 Not Found: Si no se encuentra datos en ese año,
+    - 500 Internal Server Error: En caso de cualquier otro error, proporciona detalles de la excepción.
+
+    Ejemplo de Uso:
+    - /UsersRecommend/2014
+
+    Ejemplo de Respuesta Exitosa:
+    [{'Puesto 1: ': '1º Juego'},
+    {'Puesto 2: ': '2º Juego'},
+    {'Puesto 3: ': '3º Juego'}]
+    """
+
+    # Abrir el data frame necesario
+    users_reviews_fc3 = pd.read_parquet(parquet_ruta_fc3)
+    listado_juegos_sin_repetidos = pd.read_parquet(parquet_ruta_fc3_2)
+
     # Calcula el margen de años donde hay datos
     año_maximo = users_reviews_fc3['year'].max()
     año_min = users_reviews_fc3['year'].min()
@@ -134,6 +194,32 @@ def UsersRecommend(año: int):
 
 @app.get('/UsersWorstDeveloper/{anio}')
 def UsersWorstDeveloper(año: int):
+
+    """
+    Funcion: UsersWorstDeveloper
+    Endpoint para obtener los peores 3 desarrolladores de juegos según los usuarios.
+    Devuelve, los peores 3 desarrolladores de juegos.
+
+    Parámetros:
+    - año (int): Año que se quiere conocer los peores 3 desarrolladores.
+
+    Respuestas:
+    - 200 OK: Retorna los 3 peores desarrolladores
+    - 404 Not Found: Si no se encuentra datos en ese año,
+    - 500 Internal Server Error: En caso de cualquier otro error, proporciona detalles de la excepción.
+
+    Ejemplo de Uso:
+    - /UsersWorstDeveloper/2014
+
+    Ejemplo de Respuesta Exitosa:
+    [{'Puesto 1: ': '1º developer'},
+    {'Puesto 2: ': '2º developer'},
+    {'Puesto 3: ': '3º developer'}]
+    """
+
+    # Abrir el data frame necesario
+    df_funcion_UsersWorstDeveloper = pd.read_parquet(parquet_ruta_fc4)
+
     # Calcula el margen de años donde hay datos
     año_maximo = df_funcion_UsersWorstDeveloper['year'].max()
     año_min = df_funcion_UsersWorstDeveloper['year'].min()
@@ -169,6 +255,29 @@ def UsersWorstDeveloper(año: int):
 
 @app.get('/sentiment_analysis/{developer}')
 def sentiment_analysis(developer: str):
+
+    """
+    Funcion: sentiment_analysis
+    Endpoint para obtener los comentarios positivos, neutros y negativos de un desarrollador.
+    Devuelve, el desarrollador pedido con sus puntajes.
+
+    Parámetros:
+    - developer (str): nomnbre del desarrollador
+
+    Respuestas:
+    - 200 OK: Retorna los puntajes positivos, neutros y negativos.
+    - 404 Not Found: Si no se encuentra datos en ese año,
+    - 500 Internal Server Error: En caso de cualquier otro error, proporciona detalles de la excepción.
+
+    Ejemplo de Uso:
+    - /sentiment_analysis/Nombre_desarrollador
+
+    Ejemplo de Respuesta Exitosa:
+    {'Nombre_desarrollador': {'Positive': 2, 'Neutral': 0, 'Negative': 3}}
+    """
+    # Abrir el data frame necesario
+    df_funcion_sentiment_analysis = pd.read_parquet(parquet_ruta_fc5)
+
     # Genero un filtro por developer que entra como input
     df_filtro_fc5 = df_funcion_sentiment_analysis[(df_funcion_sentiment_analysis['developer'] == developer)]
 
@@ -190,15 +299,39 @@ def sentiment_analysis(developer: str):
 
 ## GENERAMOS LAS FUNCIONES PARA LAS RECOMENDACIONES DE JUEGOS SEGUN JUEGO CARGADO.
 
-## Generar la carga de todos los csv usados para las funciones!
-
-df_combinado2 = pd.read_csv("df_funciones/df_recomend_juego_fc6.csv")
-
 @app.get('/RecomendacionJuego/{id_juego}')
 def recomendacion_juego(id_juego: int):
+
+    """
+    Endpoint para obtener una lista de juegos recomendados similares a un juego dado.
+
+    Parámetros:
+    - id_juego (int): ID del juego para el cual se desean obtener recomendaciones.
+
+    Respuestas:
+    - 200 OK: Retorna una lista con 5 juegos recomendados similares al juego ingresado.
+    - 404 Not Found: Si no se encuentra el juego con el ID especificado.
+    - 500 Internal Server Error: En caso de cualquier otro error, proporciona detalles de la excepción.
+
+    Ejemplo de Uso:
+    - /RecomendarJuego/123
+
+    Ejemplo de Respuesta Exitosa:
+    [
+        {"id": 456, "nombre": "Juego A"},
+        {"id": 789, "nombre": "Juego B"},
+        {"id": 101, "nombre": "Juego C"},
+        {"id": 202, "nombre": "Juego D"},
+        {"id": 303, "nombre": "Juego E"}
+    ]
+    """
+    
     try:
+        # Abrir el data frame necesario
+        df_recomend_juego = pd.read_parquet(parquet_ruta_fc6)
+
         # Busca el juego en el DataFrame por ID
-        juego_seleccionado = df_combinado2[df_combinado2['item_id'] == id_juego]
+        juego_seleccionado = df_recomend_juego[df_recomend_juego['item_id'] == id_juego]
 
         # Verifica si el juego con el ID especificado existe
         if juego_seleccionado.empty:
@@ -212,7 +345,7 @@ def recomendacion_juego(id_juego: int):
         tfidf_vectorizer = TfidfVectorizer()
 
         # Obtener las columnas 'title' y 'genres' antes de la concatenación
-        chunk_tags_and_genres = df_combinado2[['title', 'genres']].fillna('').astype(str)
+        chunk_tags_and_genres = df_recomend_juego[['title', 'genres']].fillna('').astype(str)
 
         # Agregar una nueva columna 'concatenated'
         chunk_tags_and_genres['concatenated'] = chunk_tags_and_genres['title'] + ' ' + chunk_tags_and_genres['genres']
@@ -246,151 +379,6 @@ def recomendacion_juego(id_juego: int):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# SEXTA FUNCION
-# df_recomend_juego_fc6 = pd.read_csv("df_funciones/df_recomend_juego_fc6.csv")
-
-## FUNCION 6 - VERSION 2
-"""
-@app.get('/RecomendacionJuego/{id_juego}')
-def recomendacion_juego_conplaytime(id_juego: int, df_entrada = df_recomend_juego_fc6 ):
-    '''
-    Endpoint para obtener una lista de juegos recomendados similares a un juego dado.
-
-    Parámetros:
-    - id_juego (int): ID del juego para el cual se desean obtener recomendaciones.
-
-    Respuestas:
-    - 200 OK: Retorna una lista con 5 juegos recomendados similares al juego ingresado.
-    - 404 Not Found: Si no se encuentra el juego con el ID especificado.
-    - 500 Internal Server Error: En caso de cualquier otro error, proporciona detalles de la excepción.
-
-    Ejemplo de Uso:
-    - /RecomendarJuego/123
-
-    Ejemplo de Respuesta Exitosa:
-    [
-        {"title": "Juego A"},
-        {"title": "Juego B"},
-        {"title": "Juego C"},
-        {"title": "Juego D"},
-        {"title": "Juego E"}
-    ]
-    '''
-    try:
-        # Busca el juego en el DataFrame por ID
-        juego_seleccionado = df_entrada[df_entrada['item_id'] == id_juego]
-
-        # Verifica si el juego con el ID especificado existe
-        if juego_seleccionado.empty:
-            raise HTTPException(status_code=404, detail=f"No se encontró el juego con ID {id_juego}")
-
-        # Genera una variable con el titulo y genero en tipo str
-        # title_game_and_genres = ' '.join(juego_seleccionado['title'].fillna('').astype(str) + ' ' + juego_seleccionado['genres'].fillna('').astype(str))
-        
-
-        # Combina título, géneros y tiempo jugado del juego seleccionado en un solo texto
-        title_game_genres_playtime = ' '.join(
-            juego_seleccionado['title'].fillna('').astype(str) + ' ' +
-            juego_seleccionado['genres'].fillna('').astype(str) + ' ' +
-            juego_seleccionado['playtime_forever'].fillna('').astype(str)
-        )
-
-        # Información de títulos, géneros y tiempo jugado de todos los juegos
-        chunk_tags_genres_playtime = (
-            df_entrada['title'].fillna('').astype(str) + ' ' +
-            df_entrada['genres'].fillna('').astype(str) + ' ' +
-            df_entrada['playtime_forever'].fillna('').astype(str)
-        )
-
-        # Genera una cadena de texto con los titulos y los generos
-        chunk_tags_genres_playtime = df_entrada['title'].fillna('').astype(str) + ' ' + df_entrada['genres'].fillna('').astype(str)
-        
-        # Genera una lista con dos elementos, el juego cargado y el resto de los juegos a comparar
-        games_to_compare = [title_game_genres_playtime] + chunk_tags_genres_playtime.tolist()
-
-        tfidf_vectorizer = TfidfVectorizer(min_df=5, max_df=0.9)
-        tfidf_matrix = tfidf_vectorizer.fit_transform(games_to_compare)
-
-        # Generamos una limitacion truncando datos por un gran exceso de datos
-        # Selecciona las primeras 15000 características
-        tfidf_matrix_subset = tfidf_matrix[:15000, :]
-
-        # Ahora a esos datos truncados toma los mejores 1000 campos y los compara con el dato de entrada
-        svd = TruncatedSVD(n_components=1000)
-        tfidf_matrix_reduced = svd.fit_transform(tfidf_matrix_subset)
-
-        # Calcula la similiridad de cosine
-        # Calcula la matriz de similitud entre juego de entrada y resto de los juegos
-        similarity_scores = cosine_similarity(tfidf_matrix_reduced)
-
-        if similarity_scores is not None:
-            # Ordena los indices similares de forma descendente y se toma desde el segundo para tomar los mas similares
-            similar_games_indices = similarity_scores[0].argsort()[::-1]
-
-            # Tomar las mejores 5 recomendaciones sin incluir el juego seleccionado
-            num_recommendations = 5
-            recommended_games = df_entrada.loc[similar_games_indices[1:num_recommendations + 1]]
-            unique_recommendations = set()
-            filtered_recommendations = []
-
-            for index in similar_games_indices[1:]:
-                game = df_entrada.loc[index, 'title']
-                if game not in unique_recommendations:
-                    unique_recommendations.add(game)
-                    filtered_recommendations.append(game)
-
-                if len(filtered_recommendations) >= num_recommendations:
-                    break
-
-            # Devolver la lista de juegos recomendados
-            recommended_games = [{"title": game} for game in filtered_recommendations]
-
-            return recommended_games
-
-        return {"message": "No se encontraron juegos similares."}
-
-    except Exception as e:
-        return {"message": f"Error: {str(e)}"}
-
-"""
 # --------------------------------------------------------------------------------------------------
 ## FIN DE LA API
 ## REALIZADO POR EL ALUMNO: NICOLAS GUTIERREZ COLL
