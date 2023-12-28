@@ -31,3 +31,5 @@ threadpoolctl
 typing_extensions
 tzdata
 uvicorn
+pyarrow
+fastparquet
