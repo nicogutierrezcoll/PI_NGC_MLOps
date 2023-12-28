@@ -1,5 +1,7 @@
 /data/
 /__pycache__/
+/ejecutable python/
+/venv310/
 /main - copia.py
 /archivo_python.py
 
