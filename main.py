@@ -26,8 +26,6 @@ app = FastAPI()
 async def root():
     return {"mensaje": "¡Bienvenido a mi API!"}
 
-# Ejecutar la API con el comando: uvicorn main:app
-# Controlar que este ubicado en la carpeta PI_MLOps_STEAM
 
 ## PRIMER FUNCIÓN: PLAY TIME GENRE
 
