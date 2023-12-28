@@ -8,7 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 # Rutas de los archivos
-parquet_ruta_fc1 = "df_funciones/df_funcion_PlaytimeGenre2_reducido.parquet"
+parquet_ruta_fc1 = "df_funciones/df_funcion_PlaytimeGenre_reducido.parquet"
 parquet_ruta_fc2 = "df_funciones/df_funcion_UserForGenre_reducido.parquet"
 parquet_ruta_fc3 = "df_funciones/users_reviews_fc3_reducido.parquet"
 parquet_ruta_fc3_2 = "df_funciones/listado_juegos_sin_repetidos.parquet"
@@ -16,6 +16,9 @@ parquet_ruta_fc4 = "df_funciones/df_funcion_UsersWorstDeveloper_reducido.parquet
 parquet_ruta_fc5 = "df_funciones/df_funcion_sentiment_analysis_reducido.parquet"
 parquet_ruta_fc6 = "df_funciones/df_recomed_juego_reducido.parquet"
 
+
+# RENDER
+# https://nicolas-gutierrez-coll.onrender.com/docs
 
 app = FastAPI()
 
