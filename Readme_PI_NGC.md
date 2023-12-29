@@ -114,7 +114,7 @@ Para esta parte, por las limitaciones de espacio que ofrece render, genermos una
 Este paso, lo genermos con el archivo: `Reductor_tamaño_archivos_para_render.ipynb`
 
 ## Link de Render:
-**`https://nicolas-gutierrez-coll.onrender.com`**
+[Render]https://nicolas-gutierrez-coll.onrender.com
 
 
 -----------------------------------
