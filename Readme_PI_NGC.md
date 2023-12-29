@@ -26,6 +26,8 @@ Esta carpeta contiene los archivos pesados y completos de los datos de entrada, 
 
 Link: [DRIVE - Data] https://drive.google.com/drive/folders/1nesQQu6eog2E1QizHpzhs2pVosLs8Whc?usp=drive_link
 
+Link: [VIDEO] https://youtu.be/_Qm0-83-zlM?si=rk0KOhGJWG5GKODZ
+
 ## **Pasos del proyecto ejecutados**
 
 ## Contexto
